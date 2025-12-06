@@ -1390,6 +1390,7 @@ typedef struct YYLTYPE {
 /********************/
 %type <list> statement_list
 %type <leaf> statement
+%type <leaf> statement_without_simicolon
 
 
 
@@ -7901,10 +7902,15 @@ function_invocation:
 statement_list:
   statement ';'
 	{$$ = new statement_list_c(locloc(@$)); $$->add_element($1);}
+| statement_without_simicolon
+	{$$ = new statement_list_c(locloc(@$)); $$->add_element($1);}
 | any_pragma
 	{$$ = new statement_list_c(locloc(@$)); $$->add_element($1);}
 | statement_list statement ';'
 	{$$ = $1; $$->add_element($2);}
+| statement_list  ';'
+| statement_list statement_without_simicolon
+	{$$ = $1; $$->add_element($2);}	
 | statement_list any_pragma
 	{$$ = $1; $$->add_element($2);}
 /* ERROR_CHECK_BEGIN */
@@ -7914,17 +7920,16 @@ statement_list:
 	{$$ = $1; print_err_msg(locl(@2), locf(@3), "';' missing at the end of statement in ST statement."); yyerrok;}
 | statement_list error ';'
 	{$$ = $1; print_err_msg(locf(@2), locl(@2), "invalid statement in ST statement."); yyerrok;}
-| statement_list ';'
-	{$$ = $1; print_err_msg(locf(@2), locl(@2), "unexpected ';' after statement in ST statement."); yynerrs++;}
 /* ERROR_CHECK_END */
 ;
 
-
+statement_without_simicolon:
+  selection_statement
+| iteration_statement
+;
 statement:
   assignment_statement
 | subprogram_control_statement
-| selection_statement
-| iteration_statement
 | function_invocation 
 	{ /* This is a non-standard extension (calling a function outside an ST expression!) */
 	  /* Only allow this if command line option has been selected...                     */
