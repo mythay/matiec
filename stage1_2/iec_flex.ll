@@ -641,6 +641,8 @@ pragma ("{"[^}]*"}")|("{{"([^}]|"}"[^}])*"}}")
 /* comments... */
 comment_beg  "(*"
 comment_end  "*)"
+line_comment_beg  "//"
+line_comment   {line_comment_beg}[^\n]*
 
 /* However, bison has a shift/reduce conflict in bison, when parsing formal function/FB
  * invocations with the 'NOT <variable_name> =>' syntax (which needs two look ahead 
@@ -1309,6 +1311,7 @@ END_CONFIGURATION	BEGIN(INITIAL); return END_CONFIGURATION;
 .							/* Ignore text inside comment! */
 \n							/* Ignore text inside comment! */
 }
+{line_comment}   {/* ignore single-line comment */}
 
 	/*****************************************/
 	/* B.1.1 Letters, digits and identifiers */
