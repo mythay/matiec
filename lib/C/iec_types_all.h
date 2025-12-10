@@ -78,11 +78,13 @@ typedef IEC_##type type;\
 typedef struct {\
   IEC_##type value;\
   IEC_BYTE flags;\
+  IEC_BYTE bits;\
 } __IEC_##type##_t;\
 \
 typedef struct {\
   IEC_##type *value;\
   IEC_BYTE flags;\
+  IEC_BYTE bits;\
   IEC_##type fvalue;\
 } __IEC_##type##_p;
 
@@ -97,13 +99,11 @@ typedef __IEC_##base##_p __IEC_##type##_p;
 typedef struct {\
   type value;\
   IEC_BYTE flags;\
-  IEC_BYTE bits;\
 } __IEC_##type##_t;\
 \
 typedef struct {\
   type *value;\
   IEC_BYTE flags;\
-  IEC_BYTE bits;\
   type fvalue;\
 } __IEC_##type##_p;
 
