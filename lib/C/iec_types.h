@@ -9,7 +9,7 @@
 /*  IEC Types defs   */
 /*********************/
 
-typedef uint8_t  IEC_BOOL;
+typedef _Bool  IEC_BOOL;
 
 typedef int8_t    IEC_SINT;
 typedef int16_t   IEC_INT;
