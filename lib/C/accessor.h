@@ -87,20 +87,20 @@
 #define __GET_VAR(name, ...)\
 	name.value __VA_ARGS__
 #define __GET_EXTERNAL(name, ...)\
-	((name.flags & __IEC_FORCE_FLAG) ? name.fvalue __VA_ARGS__ : (*(name.value)) __VA_ARGS__)
+	( (*(name.value)) __VA_ARGS__)
 #define __GET_EXTERNAL_FB(name, ...)\
 	__GET_VAR(((*name) __VA_ARGS__))
 #define __GET_LOCATED(name, ...)\
-	((name.flags & __IEC_FORCE_FLAG) ? name.fvalue __VA_ARGS__ : (*(name.value)) __VA_ARGS__)
+	( (*(name.value)) __VA_ARGS__)
 
 #define __GET_VAR_BY_REF(name, ...)\
-	((name.flags & __IEC_FORCE_FLAG) ? &(name.fvalue __VA_ARGS__) : &(name.value __VA_ARGS__))
+	( &(name.value __VA_ARGS__))
 #define __GET_EXTERNAL_BY_REF(name, ...)\
-	((name.flags & __IEC_FORCE_FLAG) ? &(name.fvalue __VA_ARGS__) : &((*(name.value)) __VA_ARGS__))
+	( &((*(name.value)) __VA_ARGS__))
 #define __GET_EXTERNAL_FB_BY_REF(name, ...)\
 	__GET_EXTERNAL_BY_REF(((*name) __VA_ARGS__))
 #define __GET_LOCATED_BY_REF(name, ...)\
-	((name.flags & __IEC_FORCE_FLAG) ? &(name.fvalue __VA_ARGS__) : &((*(name.value)) __VA_ARGS__))
+	( &((*(name.value)) __VA_ARGS__))
 
 #define __GET_VAR_REF(name, ...)\
 	(&(name.value __VA_ARGS__))
@@ -123,14 +123,43 @@
 
 // variable setting macros
 #define __SET_VAR(prefix, name, suffix, new_value)\
-	if (!(prefix name.flags & __IEC_FORCE_FLAG)) prefix name.value suffix = new_value
+	 prefix name.value suffix = new_value
 #define __SET_EXTERNAL(prefix, name, suffix, new_value)\
 	{extern IEC_BYTE __IS_GLOBAL_##name##_FORCED(void);\
-    if (!(prefix name.flags & __IEC_FORCE_FLAG || __IS_GLOBAL_##name##_FORCED()))\
 		(*(prefix name.value)) suffix = new_value;}
 #define __SET_EXTERNAL_FB(prefix, name, suffix, new_value)\
 	__SET_VAR((*(prefix name)), suffix, new_value)
 #define __SET_LOCATED(prefix, name, suffix, new_value)\
-	if (!(prefix name.flags & __IEC_FORCE_FLAG)) *(prefix name.value) suffix = new_value
+	 *(prefix name.value) suffix = new_value
+
+// FOR LOCATED VARIABLE
+#define __INIT_LOCATED_BOOL(type, location, bit, name, retained) \
+    {                                                            \
+        extern type *location;                                   \
+        name.value = location;                                   \
+        name.bits = 1 << (bit);                              \
+        __INIT_RETAIN(name, retained)                            \
+    }
+
+#undef __INIT_LOCATED_VALUE
+// not init bool located value to false automatically
+#define __INIT_LOCATED_VALUE(name, initial) _Generic(name.value,                 \
+    BOOL *: ((initial && name.bits) && (*((uint8_t *)name.value) |= name.bits)), \
+    default: *(name.value) = initial);
+
+#undef __GET_LOCATED
+#define __GET_LOCATED(name, ...) _Generic((name.value),                  \
+    BOOL *: (BOOL)(((*((uint8_t *)name.value))__VA_ARGS__) & name.bits), \
+    default: ((*(name.value))__VA_ARGS__))
+
+#undef __SET_LOCATED
+#define __SET_LOCATED(prefix, name, suffix, new_value)                                                                                                 \
+    {                                                                                                                                                  \
+        _Generic((prefix name.value),                                                                                                                  \
+            BOOL *: (*((uint8_t*)prefix name.value) = (*((uint8_t*)prefix name.value) & ~prefix name.bits) | (((uint8_t)new_value * prefix name.bits))), \
+            default: (*(prefix name.value)suffix = new_value)); \
+    }
+
 
 #endif //__ACCESSOR_H
+
