@@ -17,7 +17,9 @@ $ ./configure  --host=i586-pc-mingw32 LDFLAGS="-static"
 $ make
 
 For 64bit
-$ ./configure  --host=x86_64-w64-mingw32 LDFLAGS="-static"
+autoreconf -i
+CFLAGS="-Oz -DNDEBUG" CXXFLAGS="-Oz -DNDEBUG" ./configure  --host=x86_64-w64-mingw32 LDFLAGS="-static"
+x86_64-w64-mingw32-strip -s *.exe
 tar -zcf matiec-x86_64-windows.tar.gz lib *.exe
 
 
