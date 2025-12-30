@@ -16,10 +16,13 @@ $ ./configure  --host=i586-pc-mingw32
 $ ./configure  --host=i586-pc-mingw32 LDFLAGS="-static"
 $ make
 
-For 64bit
-autoreconf -i
-CFLAGS="-Oz -DNDEBUG" CXXFLAGS="-Oz -DNDEBUG" ./configure  --host=x86_64-w64-mingw32 LDFLAGS="-static"
-x86_64-w64-mingw32-strip -s *.exe
+
+CMake 
+cmake -DCMAKE_BUILD_TYPE:STRING=MinSizeRel  -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ -B build -G Ninja
+ninja -C build && cp build/*.exe . && x86_64-w64-mingw32-strip  -s *.exe
+
+
+
 tar -zcf matiec-x86_64-windows.tar.gz lib *.exe
 
 
