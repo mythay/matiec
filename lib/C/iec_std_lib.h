@@ -544,7 +544,7 @@ static inline LREAL __string_to_real(STRING IN) {
     /***************/
     /*   TO_TIME   */
     /***************/
-static inline TIME    __int_to_time(LINT IN)  {return (TIME){IN, 0};}
+static inline TIME    __int_to_time(LINT IN)  {return (TIME){IN/1000, (IN % 1000) * 1000000};}
 static inline TIME   __real_to_time(LREAL IN) {return (TIME){IN, (IN - (LINT)IN) * 1000000000};}
 static inline TIME __string_to_time(STRING IN){
     __strlen_t l;
@@ -586,7 +586,7 @@ static inline TIME __string_to_time(STRING IN){
 static inline LREAL __time_to_real(TIME IN){
     return (LREAL)IN.tv_sec + ((LREAL)IN.tv_nsec/1000000000);
 }
-static inline LINT __time_to_int(TIME IN) {return IN.tv_sec;}
+static inline LINT __time_to_int(TIME IN) {return IN.tv_sec*1000 + IN.tv_nsec/1000000;}
 static inline STRING __time_to_string(TIME IN){
     STRING res;
     div_t days;
